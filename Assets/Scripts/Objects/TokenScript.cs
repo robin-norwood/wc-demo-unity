@@ -27,19 +27,28 @@ public class TokenScript : MonoBehaviour
         {
             RaycastHit hit;
             Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Vector3 targetPosition;
+
             if (Physics.Raycast(mouseRay, out hit, Mathf.Infinity, this.boardLayerMask))
             { // Above a hex tile: center on the tile and hover
-                Vector3 targetPosition = hit.collider.gameObject.transform.position;
-                targetPosition.y += this.floatHeight;
-                this.gameObject.transform.position = targetPosition;
+                targetPosition = hit.collider.gameObject.transform.position;
             }
             else if (Physics.Raycast(mouseRay, out hit, Mathf.Infinity, ~this.tokenLayerMask))
             { // Above something else (ignore tokens): hover in place
-                Vector3 targetPosition = hit.point;
-                targetPosition.y += this.floatHeight;
-                this.gameObject.transform.position = targetPosition;
+                targetPosition = hit.point;
+            }
+            else
+            { // Just follow the mouse
+                // FIXME: This isn't right...mousePosition isn't the same as world
+                // ...but in practice, I think the goal should be to have the table fill the entire view,
+                // so the mouse is always over it, and this code path never gets hit.
+                Debug.Log("MOUSE: " + Input.mousePosition);
+                targetPosition = Input.mousePosition;
             }
 
+            targetPosition.y += this.floatHeight;
+            this.gameObject.transform.position = targetPosition;
+            Debug.Log("TARGET: " + targetPosition);
         }
     }
 
@@ -52,6 +61,8 @@ public class TokenScript : MonoBehaviour
     void OnMouseUp()
     {
         // Drop token
+        // FIXME: Sometimes this glitches, and the token falls through the table, or goes to the wrong place.
+
         this.followingMouse = false;
     }
 }
