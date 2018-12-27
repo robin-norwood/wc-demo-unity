@@ -17,6 +17,13 @@ public class TokenScript : MonoBehaviour
     public Vector3 velocity = Vector3.zero;
     public float smoothTime = .01f;
 
+    private Quaternion faceDown = Quaternion.Euler(90, 0, 0);
+    private Quaternion faceUp = Quaternion.Euler(-90, 0, 0);
+    private Quaternion kindaFaceUp = Quaternion.Euler(-70, 0, 0);
+
+    public Quaternion targetRotation;
+    public float rotationSpeed = 750f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +32,7 @@ public class TokenScript : MonoBehaviour
         this.tokenLayerMask = 1 << this.tokenLayer;
 
         this.targetPosition = this.gameObject.transform.position;
+        this.targetRotation = this.kindaFaceUp;
     }
 
     // Update is called once per frame
@@ -47,11 +55,26 @@ public class TokenScript : MonoBehaviour
                 this.targetPosition = hit.point;
                 targetPosition.y += this.floatHeight;
                 this.velocity = Vector3.zero;
+                if (hit.collider.tag == "FU")
+                {
+                    Debug.Log("FACEUP");
+                    this.targetRotation = this.faceUp;
+                }
+                else if (hit.collider.tag == "FD")
+                {
+                    Debug.Log("FACEDOWN");
+                    this.targetRotation = this.faceDown;
+                }
             }
 
             if (this.gameObject.transform.position != this.targetPosition)
-            {
+            { // FIXME: Need to add a fudge factor w/distance so this doesn't get called too much?
                 this.gameObject.transform.position = Vector3.SmoothDamp(this.gameObject.transform.position, this.targetPosition, ref this.velocity, this.smoothTime);
+            }
+
+            if (this.gameObject.transform.rotation != this.targetRotation)
+            {
+                this.gameObject.transform.rotation = Quaternion.RotateTowards(transform.rotation, this.targetRotation, this.rotationSpeed * Time.deltaTime);
             }
         }
     }
@@ -61,6 +84,7 @@ public class TokenScript : MonoBehaviour
         // Pick up token
         GetComponent<Rigidbody>().useGravity = false;
         this.followingMouse = true;
+        this.targetRotation = this.kindaFaceUp;
     }
 
     void OnMouseUp()
@@ -70,6 +94,6 @@ public class TokenScript : MonoBehaviour
         // I think disabling rotation on the Token GO's RigidBody and expanding the table size "fixed" this.
         GetComponent<Rigidbody>().useGravity = true;
         this.gameObject.transform.position = this.targetPosition;
-        this.followingMouse = false;
+        this.followingMouse = false;        
     }
 }

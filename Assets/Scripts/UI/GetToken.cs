@@ -23,6 +23,7 @@ public class GetToken : MonoBehaviour
         Vector3 pos = new Vector3(2,2,2); // FIXME...attach to mouse, or...?
 
         GameObject token = (GameObject) Instantiate(this.tokenPrefab, pos, Quaternion.identity);
+        token.transform.Rotate(0, -90, 0);
         Debug.Log("Got a token!");
     }
 }
