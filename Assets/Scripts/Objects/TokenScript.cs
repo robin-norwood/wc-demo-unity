@@ -19,7 +19,7 @@ public class TokenScript : MonoBehaviour
 
     private Quaternion faceDown = Quaternion.Euler(90, 0, 0);
     private Quaternion faceUp = Quaternion.Euler(-90, 0, 0);
-    private Quaternion kindaFaceUp = Quaternion.Euler(-70, 0, 0);
+    private Quaternion kindaFaceUp = Quaternion.Euler(-70, -60, 0);
 
     public Quaternion targetRotation;
     public float rotationSpeed = 750f;
@@ -45,10 +45,10 @@ public class TokenScript : MonoBehaviour
 
             if (Physics.Raycast(mouseRay, out hit, Mathf.Infinity, this.boardLayerMask))
             { // Above a hex tile: center on the tile and hover
-                // TODO: Make sure token is "face up"
                 this.targetPosition = hit.collider.gameObject.transform.position;
                 targetPosition.y += this.floatHeight;
                 this.velocity = Vector3.zero;
+                this.targetRotation = this.kindaFaceUp;
             }
             else if (Physics.Raycast(mouseRay, out hit, Mathf.Infinity, ~this.tokenLayerMask))
             { // Above something else (ignore tokens): hover in place
@@ -56,13 +56,11 @@ public class TokenScript : MonoBehaviour
                 targetPosition.y += this.floatHeight;
                 this.velocity = Vector3.zero;
                 if (hit.collider.tag == "FU")
-                {
-                    Debug.Log("FACEUP");
+                { // FIXME: Basing this off of tag seems hacky to me
                     this.targetRotation = this.faceUp;
                 }
                 else if (hit.collider.tag == "FD")
                 {
-                    Debug.Log("FACEDOWN");
                     this.targetRotation = this.faceDown;
                 }
             }
@@ -73,7 +71,7 @@ public class TokenScript : MonoBehaviour
             }
 
             if (this.gameObject.transform.rotation != this.targetRotation)
-            {
+            { // FIXME: Need to add fudge factor on rotation too?
                 this.gameObject.transform.rotation = Quaternion.RotateTowards(transform.rotation, this.targetRotation, this.rotationSpeed * Time.deltaTime);
             }
         }
@@ -94,6 +92,6 @@ public class TokenScript : MonoBehaviour
         // I think disabling rotation on the Token GO's RigidBody and expanding the table size "fixed" this.
         GetComponent<Rigidbody>().useGravity = true;
         this.gameObject.transform.position = this.targetPosition;
-        this.followingMouse = false;        
+        this.followingMouse = false;
     }
 }

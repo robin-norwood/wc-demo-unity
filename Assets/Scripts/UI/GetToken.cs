@@ -24,6 +24,5 @@ public class GetToken : MonoBehaviour
 
         GameObject token = (GameObject) Instantiate(this.tokenPrefab, pos, Quaternion.identity);
         token.transform.Rotate(0, -90, 0);
-        Debug.Log("Got a token!");
     }
 }
